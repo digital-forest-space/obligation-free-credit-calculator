@@ -27,7 +27,7 @@ export function DirectionToggle({
       >
         I have {baseName}
         <ArrowRight size={12} />
-        Cash
+        Credit
       </button>
       <button
         onClick={() => onChange("reverse")}
@@ -37,9 +37,9 @@ export function DirectionToggle({
             : "text-tertiary hover:text-secondary"
         }`}
       >
-        I want Cash
-        <ArrowLeft size={12} />
-        {baseName}
+        I want $
+        <ArrowRight size={12} />
+        How much {baseName}?
       </button>
     </div>
   );

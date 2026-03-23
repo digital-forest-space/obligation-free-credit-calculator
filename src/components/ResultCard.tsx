@@ -65,10 +65,10 @@ export function ResultCard({
             {market.baseName} needed
           </span>
           <span className="text-3xl font-bold text-accent">
-            {fmtUsd(reverse.assetNeeded * baseUsdPrice)}
+            {fmt(reverse.assetNeeded)} {market.baseName}
           </span>
           <span className="text-sm text-secondary">
-            {fmt(reverse.assetNeeded)} {market.baseName}
+            {fmtUsd(reverse.assetNeeded * baseUsdPrice)}
           </span>
         </div>
       )}

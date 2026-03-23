@@ -66,8 +66,9 @@ export function Calculator() {
         calculateForward(num, p.marketPrice, p.floorPrice, p.baseUsdPrice),
       );
     } else {
+      const desiredCashBase = num / p.baseUsdPrice;
       setReverseResult(
-        calculateReverse(num, p.marketPrice, p.floorPrice, p.baseUsdPrice),
+        calculateReverse(desiredCashBase, p.marketPrice, p.floorPrice, p.baseUsdPrice),
       );
     }
   }, [amount, market, direction, prices]);
@@ -87,7 +88,10 @@ export function Calculator() {
 
       <DirectionToggle
         direction={direction}
-        onChange={setDirection}
+        onChange={(d) => {
+          setDirection(d);
+          setAmount(d === "forward" ? "1" : "100");
+        }}
         baseName={market.baseName}
       />
 
@@ -95,9 +99,12 @@ export function Calculator() {
         <label className="text-xs text-tertiary">
           {direction === "forward"
             ? `Amount of ${market.baseName} you have`
-            : `Amount of ${market.baseName} you want as cash`}
+            : "USD amount you want as credit"}
         </label>
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-input border border-border focus-within:border-accent transition-colors">
+          {direction === "reverse" && (
+            <span className="text-xl text-secondary">$</span>
+          )}
           <input
             type="number"
             value={amount}
@@ -108,7 +115,7 @@ export function Calculator() {
             className="flex-1 bg-transparent text-xl text-primary placeholder:text-tertiary focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           <span className="text-sm text-secondary font-medium">
-            {market.baseName}
+            {direction === "forward" ? market.baseName : "USD"}
           </span>
         </div>
       </div>
