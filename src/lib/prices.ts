@@ -17,30 +17,28 @@ interface NirvanaDataEntry {
   floor?: number;
 }
 
-const JUPITER_PRICE_URL = 'https://api.jup.ag/price/v2';
-
 async function fetchUsdPrices(
   markets: MarketConfig[],
 ): Promise<Record<string, number>> {
-  const mints = markets.map((m) => m.baseMint);
-  const url = `${JUPITER_PRICE_URL}?ids=${mints.join(',')}`;
+  if (!NIRVANA_DATA_BASE_URL) return {};
 
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(`${NIRVANA_DATA_BASE_URL}/api/prices/usd`, {
+      signal: AbortSignal.timeout(10_000),
+    });
     if (!res.ok) return {};
-    const json = await res.json();
-    const data: Record<string, { price: string }> = json.data ?? {};
+    const data: Record<string, number> = await res.json();
 
     const result: Record<string, number> = {};
     for (const market of markets) {
-      const entry = data[market.baseMint];
-      if (entry?.price) {
-        result[market.name] = parseFloat(entry.price);
+      const price = data[market.baseName];
+      if (price) {
+        result[market.name] = price;
       }
     }
     return result;
   } catch (e) {
-    console.error('Jupiter price fetch error:', e);
+    console.error('USD price fetch error:', e);
     return {};
   }
 }
