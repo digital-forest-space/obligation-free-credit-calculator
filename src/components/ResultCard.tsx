@@ -125,22 +125,24 @@ export function ResultCard({
         </div>
       )}
 
-      <div className="flex gap-3">
-        <ShareButton
-          market={market}
-          amount={forward?.inputAmount ?? reverse?.assetNeeded ?? 0}
-          cash={forward?.cashInBase ?? reverse?.desiredCashBase ?? 0}
-          cashUsd={forward ? forward.cashUsd : reverse ? reverse.desiredCashUsd : 0}
-          amountUsd={forward ? forward.inputAmount * baseUsdPrice : reverse ? reverse.assetNeeded * baseUsdPrice : 0}
-          direction={forward ? "forward" : "reverse"}
-        />
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <ShareButton
+            market={market}
+            amount={forward?.inputAmount ?? reverse?.assetNeeded ?? 0}
+            cash={forward?.cashInBase ?? reverse?.desiredCashBase ?? 0}
+            cashUsd={forward ? forward.cashUsd : reverse ? reverse.desiredCashUsd : 0}
+            amountUsd={forward ? forward.inputAmount * baseUsdPrice : reverse ? reverse.assetNeeded * baseUsdPrice : 0}
+            direction={forward ? "forward" : "reverse"}
+          />
+        </div>
         <a
           href={`https://samsara.nirvana.finance/solana/markets/${market.baseName}/trade`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors"
         >
-          Get credit on Nirvana
+          Get your credit on Nirvana
           <ExternalLink size={14} />
         </a>
       </div>
