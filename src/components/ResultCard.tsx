@@ -49,7 +49,7 @@ export function ResultCard({
     <div className="flex flex-col gap-4 p-5 rounded-xl bg-surface border border-border">
       {forward && (
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-tertiary">Cash you can obtain</span>
+          <span className="text-xs text-tertiary">Your obligation free credit</span>
           <span className="text-3xl font-bold text-accent">
             {fmtUsd(forward.cashUsd)}
           </span>
