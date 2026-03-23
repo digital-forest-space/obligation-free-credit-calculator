@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ForwardResult, ReverseResult } from "@/lib/samsara/calculator";
 import type { MarketConfig } from "@/lib/samsara/config";
+import { ExternalLink } from "lucide-react";
 import { ShareButton } from "./ShareButton";
 
 function fmt(n: number, decimals = 4): string {
@@ -124,14 +125,25 @@ export function ResultCard({
         </div>
       )}
 
-      <ShareButton
-        market={market}
-        amount={forward?.inputAmount ?? reverse?.assetNeeded ?? 0}
-        cash={forward?.cashInBase ?? reverse?.desiredCashBase ?? 0}
-        cashUsd={forward ? forward.cashUsd : reverse ? reverse.desiredCashUsd : 0}
-        amountUsd={forward ? forward.inputAmount * baseUsdPrice : reverse ? reverse.assetNeeded * baseUsdPrice : 0}
-        direction={forward ? "forward" : "reverse"}
-      />
+      <div className="flex gap-3">
+        <ShareButton
+          market={market}
+          amount={forward?.inputAmount ?? reverse?.assetNeeded ?? 0}
+          cash={forward?.cashInBase ?? reverse?.desiredCashBase ?? 0}
+          cashUsd={forward ? forward.cashUsd : reverse ? reverse.desiredCashUsd : 0}
+          amountUsd={forward ? forward.inputAmount * baseUsdPrice : reverse ? reverse.assetNeeded * baseUsdPrice : 0}
+          direction={forward ? "forward" : "reverse"}
+        />
+        <a
+          href={`https://samsara.nirvana.finance/solana/markets/${market.baseName}/trade`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors"
+        >
+          Get credit on Nirvana
+          <ExternalLink size={14} />
+        </a>
+      </div>
     </div>
   );
 }
