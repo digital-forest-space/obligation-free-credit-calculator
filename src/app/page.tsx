@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Calculator } from "@/components/Calculator";
+import { OFCRolodex } from "@/components/OFCRolodex";
 
 interface PageProps {
   searchParams: Promise<{ asset?: string; amount?: string; cash?: string; dir?: string }>;
@@ -37,21 +38,12 @@ export default function Home() {
     <div className="flex flex-col items-center px-4 py-12 md:py-20">
       <div className="max-w-xl w-full flex flex-col gap-8">
         <div className="flex flex-col gap-3 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary">
-            Safe Borrow Capacity
+          <h1 className="text-3xl md:text-4xl font-bold inline-block mx-auto">
+            <span className="block text-left text-accent">Nirvana</span>
+            <span className="block text-center text-primary">Obligation Free Credit</span>
+            <span className="block text-right text-secondary font-normal text-xl md:text-2xl">Calculator</span>
           </h1>
-          <p className="text-secondary text-sm md:text-base">
-            Calculate how much{" "}
-            <span className="relative group inline-block">
-              <span className="text-accent underline decoration-dotted underline-offset-4 cursor-pointer">
-                obligation free credit
-              </span>
-              <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-surface border border-border text-xs text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                No interest. No repayment schedule. No liquidation. Ever.
-              </span>
-            </span>{" "}
-            you can obtain from your assets.
-          </p>
+          <OFCRolodex />
         </div>
         <Suspense>
           <Calculator />
