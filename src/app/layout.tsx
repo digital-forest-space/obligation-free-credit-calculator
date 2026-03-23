@@ -6,9 +6,9 @@ import { WalletProviders } from "@/components/WalletProviders";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Safe Borrow Capacity — Samsara",
+  title: "Safe Borrow Capacity — Nirvana",
   description:
-    "Calculate how much free cash you can obtain from your assets. 0 interest. 0 liquidation risk. 0 repayment pressure.",
+    "Calculate how much obligation free credit you can obtain from your assets. 0 interest. 0 liquidation risk. 0 repayment pressure.",
 };
 
 export default function RootLayout({

@@ -12,11 +12,11 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
   if (asset && amount && cash) {
     const ogUrl = `/og?asset=${encodeURIComponent(asset)}&amount=${encodeURIComponent(amount)}&cash=${encodeURIComponent(cash)}&dir=${params.dir || 'forward'}`;
-    const title = `Get ${parseFloat(cash).toFixed(2)} ${asset} free cash — Safe Borrow Capacity`;
+    const title = `Get ${parseFloat(cash).toFixed(2)} ${asset} obligation free credit — Safe Borrow Capacity`;
 
     return {
       title,
-      description: `Calculate how much free cash you can obtain from ${asset}. 0 interest. 0 liquidation risk. 0 repayment pressure.`,
+      description: `Calculate how much obligation free credit you can obtain from ${asset}. 0 interest. 0 liquidation risk. 0 repayment pressure.`,
       openGraph: {
         title,
         images: [{ url: ogUrl, width: 1200, height: 630 }],
@@ -41,7 +41,7 @@ export default function Home() {
             Safe Borrow Capacity
           </h1>
           <p className="text-secondary text-sm md:text-base">
-            Calculate how much free cash you can obtain from your assets.
+            Calculate how much obligation free credit you can obtain from your assets.
           </p>
           <div className="flex justify-center gap-4 text-xs">
             <span className="px-3 py-1 rounded-full bg-accent-dim text-accent font-medium">

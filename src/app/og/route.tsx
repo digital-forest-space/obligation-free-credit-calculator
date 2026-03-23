@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
                 {asset}
               </div>
               <div style={{ fontSize: '22px', color: '#8A8A94' }}>
-                in free cash
+                in obligation free credit
               </div>
             </div>
           ) : (
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
               marginTop: '16px',
             }}
           >
-            Powered by Samsara
+            Powered by Nirvana
           </div>
         </div>
       </div>

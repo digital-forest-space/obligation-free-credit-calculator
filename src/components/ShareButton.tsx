@@ -4,14 +4,20 @@ import { useState } from "react";
 import { Share2, Check, Twitter } from "lucide-react";
 import type { MarketConfig } from "@/lib/samsara/config";
 
+function fmtUsd(n: number): string {
+  return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 interface ShareButtonProps {
   market: MarketConfig;
   amount: number;
   cash: number;
+  cashUsd: number;
+  amountUsd: number;
   direction: "forward" | "reverse";
 }
 
-export function ShareButton({ market, amount, cash, direction }: ShareButtonProps) {
+export function ShareButton({ market, amount, cash, cashUsd, amountUsd, direction }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const params = new URLSearchParams({
@@ -28,9 +34,9 @@ export function ShareButton({ market, amount, cash, direction }: ShareButtonProp
 
   function getShareText(): string {
     if (direction === "forward") {
-      return `I can get ${cash.toFixed(2)} ${market.baseName} in free cash from ${amount} ${market.baseName} on Samsara. 0 interest. 0 liquidation. 0 repayment pressure.`;
+      return `I can get ${fmtUsd(cashUsd)} in obligation free credit from ${amount} ${market.baseName} on Nirvana. 0 interest. 0 liquidation. 0 repayment pressure.`;
     }
-    return `I only need ${amount.toFixed(2)} ${market.baseName} to get ${cash.toFixed(2)} ${market.baseName} in free cash on Samsara. 0 interest. 0 liquidation. 0 repayment pressure.`;
+    return `I only need ${amount} ${market.baseName} to get ${fmtUsd(cashUsd)} in obligation free credit on Nirvana. 0 interest. 0 liquidation. 0 repayment pressure.`;
   }
 
   async function handleCopy() {
