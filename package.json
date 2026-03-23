@@ -1,5 +1,5 @@
 {
-  "name": "safe-borrow-capacity",
+  "name": "obligation-free-credit-calculator",
   "version": "0.1.0",
   "private": true,
   "engines": {

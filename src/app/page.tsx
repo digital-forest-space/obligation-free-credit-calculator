@@ -13,7 +13,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
   if (asset && amount && cash) {
     const ogUrl = `/og?asset=${encodeURIComponent(asset)}&amount=${encodeURIComponent(amount)}&cash=${encodeURIComponent(cash)}&dir=${params.dir || 'forward'}`;
-    const title = `Get ${parseFloat(cash).toFixed(2)} ${asset} obligation free credit — Safe Borrow Capacity`;
+    const title = `Get ${parseFloat(cash).toFixed(2)} ${asset} obligation free credit — Obligation Free Credit Calculator`;
 
     return {
       title,

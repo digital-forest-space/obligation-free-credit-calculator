@@ -1,6 +1,6 @@
 {
   "env": {
-    "CLAUDE_CODE_TASK_LIST_ID": "safe_borrow_capacity_tasks"
+    "CLAUDE_CODE_TASK_LIST_ID": "obligation_free_credit_calculator_tasks"
   },
   "permissions": {
     "allow": [

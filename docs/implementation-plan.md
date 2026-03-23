@@ -1,4 +1,4 @@
-# Safe Borrow Capacity Calculator — Implementation Plan
+# Obligation Free Credit Calculator — Implementation Plan
 
 ## Context
 

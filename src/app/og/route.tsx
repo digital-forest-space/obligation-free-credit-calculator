@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
               textTransform: 'uppercase',
             }}
           >
-            Safe Borrow Capacity
+            Obligation Free Credit
           </div>
 
           {isForward ? (
