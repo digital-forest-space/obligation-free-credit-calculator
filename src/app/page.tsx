@@ -41,19 +41,17 @@ export default function Home() {
             Safe Borrow Capacity
           </h1>
           <p className="text-secondary text-sm md:text-base">
-            Calculate how much obligation free credit you can obtain from your assets.
+            Calculate how much{" "}
+            <span className="relative group inline-block">
+              <span className="text-accent underline decoration-dotted underline-offset-4 cursor-pointer">
+                obligation free credit
+              </span>
+              <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-surface border border-border text-xs text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                No interest. No repayment schedule. No liquidation. Ever.
+              </span>
+            </span>{" "}
+            you can obtain from your assets.
           </p>
-          <div className="flex justify-center gap-4 text-xs">
-            <span className="px-3 py-1 rounded-full bg-accent-dim text-accent font-medium">
-              0 Interest
-            </span>
-            <span className="px-3 py-1 rounded-full bg-accent-dim text-accent font-medium">
-              0 Liquidation Risk
-            </span>
-            <span className="px-3 py-1 rounded-full bg-accent-dim text-accent font-medium">
-              0 Repayment Pressure
-            </span>
-          </div>
         </div>
         <Suspense>
           <Calculator />

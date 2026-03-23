@@ -29,7 +29,7 @@ export function Calculator() {
   );
 
   const [amount, setAmount] = useState(() =>
-    searchParams.get("amount") || "",
+    searchParams.get("amount") || "1",
   );
 
   const [prices, setPrices] = useState<AllPrices | null>(null);
