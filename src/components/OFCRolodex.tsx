@@ -30,9 +30,16 @@ export function OFCRolodex() {
   return (
     <p className="text-sm md:text-base flex items-center justify-center gap-2">
       <span className="text-accent font-semibold">OFC</span>
-      <span className="relative h-6 overflow-hidden inline-flex items-center" style={{ minWidth: "14em" }}>
+      <span className="relative h-6 overflow-hidden inline-grid items-center">
+        {/* Invisible copies of all phrases to set the width to the longest one */}
+        {PHRASES.map((phrase) => (
+          <span key={phrase} className="invisible col-start-1 row-start-1 whitespace-nowrap">
+            {phrase}
+          </span>
+        ))}
+        {/* Visible animated phrase */}
         <span
-          className={`absolute left-0 text-secondary transition-all duration-300 ease-in-out ${
+          className={`col-start-1 row-start-1 text-secondary whitespace-nowrap transition-all duration-300 ease-in-out ${
             animating
               ? "-translate-y-full opacity-0"
               : "translate-y-0 opacity-100"

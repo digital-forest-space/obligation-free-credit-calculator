@@ -41,13 +41,15 @@ export default function Home() {
           <h1 className="text-3xl md:text-4xl font-bold inline-block mx-auto">
             <span className="block text-left text-accent">Nirvana</span>
             <span className="block text-center text-primary">Obligation Free Credit</span>
-            <span className="block text-right text-secondary font-normal text-xl md:text-2xl">Calculator</span>
+            <span className="block text-right text-primary font-normal text-xl md:text-2xl">Calculator</span>
           </h1>
-          <OFCRolodex />
         </div>
         <Suspense>
           <Calculator />
         </Suspense>
+      </div>
+      <div className="mt-16 text-center">
+        <OFCRolodex />
       </div>
     </div>
   );
