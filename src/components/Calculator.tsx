@@ -2,18 +2,21 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { MARKETS, MARKET_LIST, type MarketConfig, getMarketByBaseName } from "@/lib/samsara/config";
+import { useSelectedWalletAccount } from "@solana/react";
+import { MARKETS, type MarketConfig, getMarketByBaseName } from "@/lib/samsara/config";
 import { calculateForward, calculateReverse, type ForwardResult, type ReverseResult } from "@/lib/samsara/calculator";
 import type { AllPrices } from "@/lib/prices";
 import { AssetSelector } from "./AssetSelector";
 import { DirectionToggle, type Direction } from "./DirectionToggle";
 import { ResultCard } from "./ResultCard";
-import { VoteButton } from "./VoteButton";
 import { WalletButton } from "./WalletButton";
 import { Loader2 } from "lucide-react";
 
+const TX_FEE_RESERVE = 0.01;
+
 export function Calculator() {
   const searchParams = useSearchParams();
+  const [account] = useSelectedWalletAccount();
 
   const [market, setMarket] = useState<MarketConfig>(() => {
     const assetParam = searchParams.get("asset");
@@ -39,6 +42,8 @@ export function Calculator() {
   const [forwardResult, setForwardResult] = useState<ForwardResult | null>(null);
   const [reverseResult, setReverseResult] = useState<ReverseResult | null>(null);
 
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
   useEffect(() => {
     setLoading(true);
     fetch("/api/prices")
@@ -50,6 +55,26 @@ export function Calculator() {
       .catch(() => setError("Failed to load prices"))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!account) {
+      setWalletBalance(null);
+      return;
+    }
+
+    fetch("/api/balance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet: account.address }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.lamports) {
+          setWalletBalance(Number(BigInt(data.lamports)) / 1e9);
+        }
+      })
+      .catch(() => {});
+  }, [account]);
 
   const compute = useCallback(() => {
     setForwardResult(null);
@@ -79,6 +104,15 @@ export function Calculator() {
 
   const currentPrices = prices?.[market.name];
 
+  const usableBalance =
+    walletBalance !== null ? Math.max(0, walletBalance - TX_FEE_RESERVE) : null;
+
+  function handleUseBalance() {
+    if (usableBalance !== null && usableBalance > 0) {
+      setAmount(usableBalance.toString());
+    }
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-center">
@@ -96,11 +130,21 @@ export function Calculator() {
       />
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs text-tertiary">
-          {direction === "forward"
-            ? `Amount of ${market.baseName} you have`
-            : "USD amount you want as credit"}
-        </label>
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-tertiary">
+            {direction === "forward"
+              ? `Amount of ${market.baseName} you have`
+              : "USD amount you want as credit"}
+          </label>
+          {direction === "forward" && usableBalance !== null && (
+            <button
+              onClick={handleUseBalance}
+              className="text-xs text-accent hover:text-accent-hover transition-colors cursor-pointer"
+            >
+              {walletBalance!.toFixed(4)} {market.baseName}
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-input border border-border focus-within:border-accent transition-colors">
           {direction === "reverse" && (
             <span className="text-xl text-secondary">$</span>
@@ -146,8 +190,6 @@ export function Calculator() {
           Enter a valid amount to see results
         </div>
       )}
-
-      <VoteButton />
     </div>
   );
 }
