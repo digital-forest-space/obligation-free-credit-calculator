@@ -36,7 +36,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default function Home() {
   return (
     <div className="flex flex-col items-center px-4 py-12 md:py-20">
-      <div className="max-w-xl w-full flex flex-col gap-8">
+      <div className="max-w-xl w-full flex flex-col gap-16">
         <div className="flex flex-col gap-3 text-center">
           <h1 className="text-3xl md:text-4xl font-bold inline-block mx-auto">
             <span className="block text-left text-accent">Nirvana</span>
