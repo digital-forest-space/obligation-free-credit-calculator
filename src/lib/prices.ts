@@ -1,7 +1,7 @@
 import { getCached, setCache } from './cache';
 import { MARKETS, type MarketConfig } from './samsara/config';
 
-const COMPANION_BASE_URL = process.env.NIRVANA_COMPANION_BASE_URL;
+const NIRVANA_DATA_BASE_URL = process.env.NIRVANA_DATA_BASE_URL;
 const PRICE_CACHE_TTL_MS = 300_000; // 5 minutes
 
 export interface MarketPrices {
@@ -12,7 +12,7 @@ export interface MarketPrices {
 
 export type AllPrices = Record<string, MarketPrices>;
 
-interface CompanionEntry {
+interface NirvanaDataEntry {
   price?: number;
   floor?: number;
 }
@@ -45,21 +45,21 @@ async function fetchUsdPrices(
   }
 }
 
-async function fetchCompanionPrices(
+async function fetchNirvanaPrices(
   marketNames: string[],
-): Promise<Record<string, CompanionEntry>> {
-  if (!COMPANION_BASE_URL) return {};
+): Promise<Record<string, NirvanaDataEntry>> {
+  if (!NIRVANA_DATA_BASE_URL) return {};
 
   try {
-    const url = `${COMPANION_BASE_URL}/getPrices?markets=${encodeURIComponent(marketNames.join(','))}`;
+    const url = `${NIRVANA_DATA_BASE_URL}/api/prices?markets=${encodeURIComponent(marketNames.join(','))}`;
     const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
     if (!res.ok) {
-      console.error('Companion price fetch error:', res.status);
+      console.error('Nirvana data price fetch error:', res.status);
       return {};
     }
     return await res.json();
   } catch (e) {
-    console.error('Companion price fetch error:', e);
+    console.error('Nirvana data price fetch error:', e);
     return {};
   }
 }
@@ -72,14 +72,14 @@ export async function fetchAllPrices(): Promise<AllPrices> {
   const marketList = Object.values(MARKETS);
   const marketNames = Object.keys(MARKETS);
 
-  const [companion, usdPrices] = await Promise.all([
-    fetchCompanionPrices(marketNames),
+  const [nirvana, usdPrices] = await Promise.all([
+    fetchNirvanaPrices(marketNames),
     fetchUsdPrices(marketList),
   ]);
 
   const result: AllPrices = {};
   for (const name of marketNames) {
-    const entry = companion[name];
+    const entry = nirvana[name];
     const usdPrice = usdPrices[name];
     if (entry?.price && entry?.floor && usdPrice) {
       result[name] = {
