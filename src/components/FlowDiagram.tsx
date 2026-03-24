@@ -1,12 +1,13 @@
 "use client";
 
-import { ChevronRight, ChevronDown, Check } from "lucide-react";
+import { ChevronRight, ChevronDown, Check, ExternalLink } from "lucide-react";
 import type { MarketConfig } from "@/lib/samsara/config";
 
 interface FlowDiagramProps {
   market: MarketConfig;
   activeStep: 0 | 1 | 2 | 3;
   onStepClick?: (step: 1 | 2 | 3) => void;
+  signatures?: { buy?: string; borrow?: string; swap?: string };
 }
 
 const NAV_TOKEN_PROPERTIES = [
@@ -32,6 +33,7 @@ function StepCard({
   active,
   completed,
   properties,
+  txSignature,
   onClick,
 }: {
   stepNumber: number;
@@ -41,6 +43,7 @@ function StepCard({
   active: boolean;
   completed: boolean;
   properties?: string[];
+  txSignature?: string;
   onClick?: () => void;
 }) {
   return (
@@ -77,15 +80,22 @@ function StepCard({
         <span className="text-xs text-tertiary">
           {from} → {to}
         </span>
+        {txSignature && (
+          <a
+            href={`https://solscan.io/tx/${txSignature}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 text-[10px] text-accent hover:text-accent-hover transition-colors mt-0.5"
+          >
+            <ExternalLink size={10} />
+            View tx
+          </a>
+        )}
       </button>
 
       {properties && properties.length > 0 && (
-        <ul
-          className={`flex flex-col gap-1 pl-3 transition-all overflow-hidden ${
-            active ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
-          }`}
-          style={{ transitionDuration: "300ms" }}
-        >
+        <ul className="flex flex-col gap-1 pl-3">
           {properties.map((prop) => (
             <li key={prop} className="text-xs text-secondary flex items-start gap-1.5">
               <span className="text-accent mt-0.5">•</span>
@@ -113,9 +123,15 @@ function Connector({ vertical }: { vertical?: boolean }) {
   );
 }
 
-export function FlowDiagram({ market, activeStep, onStepClick }: FlowDiagramProps) {
+export function FlowDiagram({ market, activeStep, onStepClick, signatures }: FlowDiagramProps) {
   const isCompleted = (step: number) => activeStep > step;
   const isActive = (step: number) => activeStep === step;
+
+  const sigMap: Record<number, string | undefined> = {
+    1: signatures?.buy,
+    2: signatures?.borrow,
+    3: signatures?.swap,
+  };
 
   const steps = [
     {
@@ -152,6 +168,7 @@ export function FlowDiagram({ market, activeStep, onStepClick }: FlowDiagramProp
               {...step}
               active={isActive(step.stepNumber)}
               completed={isCompleted(step.stepNumber)}
+              txSignature={sigMap[step.stepNumber]}
               onClick={() => onStepClick?.(step.stepNumber)}
             />
             {i < steps.length - 1 && <Connector />}
@@ -167,6 +184,7 @@ export function FlowDiagram({ market, activeStep, onStepClick }: FlowDiagramProp
               {...step}
               active={isActive(step.stepNumber)}
               completed={isCompleted(step.stepNumber)}
+              txSignature={sigMap[step.stepNumber]}
               onClick={() => onStepClick?.(step.stepNumber)}
             />
             {i < steps.length - 1 && <Connector vertical />}

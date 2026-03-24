@@ -32,45 +32,52 @@ export function FlowPanel({ market, forwardResult }: FlowPanelProps) {
         </a>
         <span className="text-xs text-tertiary text-center">— or —</span>
         {account ? (
-          <ExecuteButton
+          <ConnectedFlowPanel
             account={account}
             market={market}
             forwardResult={forwardResult}
-            onStepChange={setManualStep}
+            manualStep={manualStep}
+            onManualStepChange={setManualStep}
           />
         ) : (
-          <button
-            disabled
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary opacity-40 cursor-not-allowed"
-          >
-            Connect wallet to execute
-          </button>
+          <>
+            <button
+              disabled
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary opacity-40 cursor-not-allowed"
+            >
+              Connect wallet to execute
+            </button>
+            <FlowDiagram
+              market={market}
+              activeStep={manualStep}
+              onStepClick={(step) => setManualStep(step === manualStep ? 0 : step)}
+            />
+          </>
         )}
       </div>
-      <FlowDiagram
-        market={market}
-        activeStep={manualStep}
-        onStepClick={(step) => setManualStep(step === manualStep ? 0 : step)}
-      />
     </div>
   );
 }
 
-function ExecuteButton({
+/**
+ * Rendered only when wallet is connected, so useExecuteOfc is safe to call.
+ */
+function ConnectedFlowPanel({
   account,
   market,
   forwardResult,
-  onStepChange,
+  manualStep,
+  onManualStepChange,
 }: {
   account: UiWalletAccount;
   market: MarketConfig;
   forwardResult: ForwardResult | null;
-  onStepChange: (step: 0 | 1 | 2 | 3) => void;
+  manualStep: 0 | 1 | 2 | 3;
+  onManualStepChange: (step: 0 | 1 | 2 | 3) => void;
 }) {
   const { execute, loading, error, step, signatures } = useExecuteOfc(account);
 
-  if (step > 0) onStepChange(step);
-
+  const activeStep = step > 0 ? step : manualStep;
   const allDone = !!signatures.swap;
 
   const stepLabels: Record<number, string> = {
@@ -107,39 +114,15 @@ function ExecuteButton({
           "Execute directly from wallet"
         )}
       </button>
-      {signatures.buy && (
-        <a
-          href={`https://solscan.io/tx/${signatures.buy}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-accent hover:text-accent-hover text-center transition-colors"
-        >
-          Step 1 — Buy tx →
-        </a>
-      )}
-      {signatures.borrow && (
-        <a
-          href={`https://solscan.io/tx/${signatures.borrow}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-accent hover:text-accent-hover text-center transition-colors"
-        >
-          Step 2 — Borrow tx →
-        </a>
-      )}
-      {signatures.swap && (
-        <a
-          href={`https://solscan.io/tx/${signatures.swap}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-accent hover:text-accent-hover text-center transition-colors"
-        >
-          Step 3 — Swap tx →
-        </a>
-      )}
       {error && (
         <p className="text-xs text-error text-center">{error}</p>
       )}
+      <FlowDiagram
+        market={market}
+        activeStep={activeStep as 0 | 1 | 2 | 3}
+        onStepClick={(s) => onManualStepChange(s === manualStep ? 0 : s)}
+        signatures={signatures}
+      />
     </>
   );
 }
