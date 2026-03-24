@@ -14,7 +14,14 @@ import { Loader2 } from "lucide-react";
 
 const TX_FEE_RESERVE = 0.01;
 
-export function Calculator() {
+interface CalculatorProps {
+  onStateChange?: (state: {
+    market: MarketConfig;
+    forwardResult: ForwardResult | null;
+  }) => void;
+}
+
+export function Calculator({ onStateChange }: CalculatorProps) {
   const searchParams = useSearchParams();
   const [account] = useSelectedWalletAccount();
 
@@ -101,6 +108,10 @@ export function Calculator() {
   useEffect(() => {
     compute();
   }, [compute]);
+
+  useEffect(() => {
+    onStateChange?.({ market, forwardResult });
+  }, [market, forwardResult, onStateChange]);
 
   const currentPrices = prices?.[market.name];
 

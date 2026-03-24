@@ -13,6 +13,7 @@ const csp = [
 ].join('; ') + ';';
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['nirvana-solana'],
   async headers() {
     return [
       {

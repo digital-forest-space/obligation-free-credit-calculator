@@ -1,8 +1,5 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
-import { Calculator } from "@/components/Calculator";
-import { FlowPanel } from "@/components/FlowPanel";
-import { OFCRolodex } from "@/components/OFCRolodex";
+import { HomeContent } from "@/components/HomeContent";
 
 interface PageProps {
   searchParams: Promise<{ asset?: string; amount?: string; cash?: string; dir?: string }>;
@@ -35,26 +32,5 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default function Home() {
-  return (
-    <div className="flex flex-col items-center px-4 py-12 md:py-20">
-      <div className="max-w-xl w-full flex flex-col gap-16">
-        <div className="flex flex-col gap-3 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold inline-block mx-auto">
-            <span className="block text-left text-accent">Nirvana</span>
-            <span className="block text-center text-primary">Obligation Free Credit</span>
-            <span className="block text-right text-primary font-normal text-xl md:text-2xl">Calculator</span>
-          </h1>
-        </div>
-        <Suspense>
-          <Calculator />
-        </Suspense>
-      </div>
-      <div className="max-w-xl w-full mt-8">
-        <FlowPanel />
-      </div>
-      <div className="mt-16 text-center">
-        <OFCRolodex />
-      </div>
-    </div>
-  );
+  return <HomeContent />;
 }
