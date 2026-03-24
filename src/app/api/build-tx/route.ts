@@ -46,7 +46,8 @@ export async function POST(request: Request) {
     const recentBlockhash = await rpcClient.getLatestBlockhash();
 
     const inputLamports = toLamports(inputAmount, market.baseDecimals);
-    const borrowLamports = toLamports(borrowAmount, market.baseDecimals);
+    // Apply 98% safety margin to avoid overshooting borrow capacity
+    const borrowLamports = toLamports(borrowAmount * 0.98, market.baseDecimals);
 
     const txBytes = await samsaraClient.buildUnsignedBuyAndBorrowTransaction({
       userPubkey: wallet,
