@@ -4,7 +4,6 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ForwardResult, ReverseResult } from "@/lib/samsara/calculator";
 import type { MarketConfig } from "@/lib/samsara/config";
-import { ExternalLink } from "lucide-react";
 import { ShareButton } from "./ShareButton";
 
 function fmt(n: number, decimals = 4): string {
@@ -136,15 +135,6 @@ export function ResultCard({
             direction={forward ? "forward" : "reverse"}
           />
         </div>
-        <a
-          href={`https://samsara.nirvana.finance/solana/markets/${market.baseName}/trade`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors"
-        >
-          Get your credit on Nirvana
-          <ExternalLink size={14} />
-        </a>
       </div>
     </div>
   );

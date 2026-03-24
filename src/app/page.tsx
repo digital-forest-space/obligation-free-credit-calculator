@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Calculator } from "@/components/Calculator";
+import { FlowPanel } from "@/components/FlowPanel";
 import { OFCRolodex } from "@/components/OFCRolodex";
 
 interface PageProps {
@@ -47,6 +48,9 @@ export default function Home() {
         <Suspense>
           <Calculator />
         </Suspense>
+      </div>
+      <div className="max-w-xl w-full mt-8">
+        <FlowPanel />
       </div>
       <div className="mt-16 text-center">
         <OFCRolodex />
