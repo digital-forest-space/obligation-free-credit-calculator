@@ -5,16 +5,17 @@ import { ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { useSelectedWalletAccount } from "@solana/react";
 import type { UiWalletAccount } from "@wallet-standard/react";
 import type { MarketConfig } from "@/lib/samsara/config";
-import type { ForwardResult } from "@/lib/samsara/calculator";
+import type { ForwardResult, ReverseResult } from "@/lib/samsara/calculator";
 import { FlowDiagram } from "./FlowDiagram";
 import { useExecuteOfc } from "@/hooks/useExecuteOfc";
 
 interface FlowPanelProps {
   market: MarketConfig;
   forwardResult: ForwardResult | null;
+  reverseResult: ReverseResult | null;
 }
 
-export function FlowPanel({ market, forwardResult }: FlowPanelProps) {
+export function FlowPanel({ market, forwardResult, reverseResult }: FlowPanelProps) {
   const [manualStep, setManualStep] = useState<0 | 1 | 2 | 3>(0);
   const [account] = useSelectedWalletAccount();
 
@@ -36,6 +37,7 @@ export function FlowPanel({ market, forwardResult }: FlowPanelProps) {
             account={account}
             market={market}
             forwardResult={forwardResult}
+            reverseResult={reverseResult}
             manualStep={manualStep}
             onManualStepChange={setManualStep}
           />
@@ -66,12 +68,14 @@ function ConnectedFlowPanel({
   account,
   market,
   forwardResult,
+  reverseResult,
   manualStep,
   onManualStepChange,
 }: {
   account: UiWalletAccount;
   market: MarketConfig;
   forwardResult: ForwardResult | null;
+  reverseResult: ReverseResult | null;
   manualStep: 0 | 1 | 2 | 3;
   onManualStepChange: (step: 0 | 1 | 2 | 3) => void;
 }) {
@@ -79,6 +83,20 @@ function ConnectedFlowPanel({
 
   const activeStep = step > 0 ? step : manualStep;
   const allDone = !!signatures.swap;
+  const hasResult = !!forwardResult || !!reverseResult;
+
+  // Derive inputAmount (SOL to buy) and maxBorrow from whichever mode is active
+  const inputAmount = forwardResult
+    ? forwardResult.inputAmount
+    : reverseResult
+      ? reverseResult.assetNeeded
+      : 0;
+
+  const maxBorrow = forwardResult
+    ? forwardResult.cashInBase
+    : reverseResult
+      ? reverseResult.desiredCashBase
+      : 0;
 
   const stepLabels: Record<number, string> = {
     1: "Step 1/3 — Buying navToken...",
@@ -87,15 +105,15 @@ function ConnectedFlowPanel({
   };
 
   async function handleExecute() {
-    if (!forwardResult) return;
-    await execute(market, forwardResult.inputAmount, forwardResult.cashInBase);
+    if (!hasResult) return;
+    await execute(market, inputAmount, maxBorrow);
   }
 
   return (
     <>
       <button
         onClick={handleExecute}
-        disabled={loading || !forwardResult}
+        disabled={loading || !hasResult}
         className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {loading ? (
@@ -108,7 +126,7 @@ function ConnectedFlowPanel({
             <CheckCircle size={14} className="text-accent" />
             All steps complete
           </>
-        ) : !forwardResult ? (
+        ) : !hasResult ? (
           "Enter an amount first"
         ) : (
           "Execute directly from wallet"

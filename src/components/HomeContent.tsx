@@ -5,16 +5,18 @@ import { Calculator } from "@/components/Calculator";
 import { FlowPanel } from "@/components/FlowPanel";
 import { OFCRolodex } from "@/components/OFCRolodex";
 import { MARKETS, type MarketConfig } from "@/lib/samsara/config";
-import type { ForwardResult } from "@/lib/samsara/calculator";
+import type { ForwardResult, ReverseResult } from "@/lib/samsara/calculator";
 
 export function HomeContent() {
   const [market, setMarket] = useState<MarketConfig>(MARKETS.navSOL);
   const [forwardResult, setForwardResult] = useState<ForwardResult | null>(null);
+  const [reverseResult, setReverseResult] = useState<ReverseResult | null>(null);
 
   const handleStateChange = useCallback(
-    (state: { market: MarketConfig; forwardResult: ForwardResult | null }) => {
+    (state: { market: MarketConfig; forwardResult: ForwardResult | null; reverseResult: ReverseResult | null }) => {
       setMarket(state.market);
       setForwardResult(state.forwardResult);
+      setReverseResult(state.reverseResult);
     },
     [],
   );
@@ -34,7 +36,7 @@ export function HomeContent() {
         </Suspense>
       </div>
       <div className="max-w-xl w-full mt-8">
-        <FlowPanel market={market} forwardResult={forwardResult} />
+        <FlowPanel market={market} forwardResult={forwardResult} reverseResult={reverseResult} />
       </div>
       <div className="mt-16 text-center">
         <OFCRolodex />

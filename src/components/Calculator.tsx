@@ -18,6 +18,7 @@ interface CalculatorProps {
   onStateChange?: (state: {
     market: MarketConfig;
     forwardResult: ForwardResult | null;
+    reverseResult: ReverseResult | null;
   }) => void;
 }
 
@@ -110,8 +111,8 @@ export function Calculator({ onStateChange }: CalculatorProps) {
   }, [compute]);
 
   useEffect(() => {
-    onStateChange?.({ market, forwardResult });
-  }, [market, forwardResult, onStateChange]);
+    onStateChange?.({ market, forwardResult, reverseResult });
+  }, [market, forwardResult, reverseResult, onStateChange]);
 
   const currentPrices = prices?.[market.name];
 
