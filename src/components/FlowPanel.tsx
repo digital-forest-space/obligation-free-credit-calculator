@@ -15,7 +15,7 @@ interface FlowPanelProps {
 }
 
 export function FlowPanel({ market, forwardResult }: FlowPanelProps) {
-  const [activeStep, setActiveStep] = useState<0 | 1 | 2 | 3>(0);
+  const [manualStep, setManualStep] = useState<0 | 1 | 2 | 3>(0);
   const [account] = useSelectedWalletAccount();
 
   return (
@@ -36,7 +36,7 @@ export function FlowPanel({ market, forwardResult }: FlowPanelProps) {
             account={account}
             market={market}
             forwardResult={forwardResult}
-            onStepChange={setActiveStep}
+            onStepChange={setManualStep}
           />
         ) : (
           <button
@@ -49,17 +49,13 @@ export function FlowPanel({ market, forwardResult }: FlowPanelProps) {
       </div>
       <FlowDiagram
         market={market}
-        activeStep={activeStep}
-        onStepClick={(step) => setActiveStep(step === activeStep ? 0 : step)}
+        activeStep={manualStep}
+        onStepClick={(step) => setManualStep(step === manualStep ? 0 : step)}
       />
     </div>
   );
 }
 
-/**
- * Separated so useExecuteOfc (which calls useSignAndSendTransaction)
- * is only mounted when account is defined — avoids SSR crash.
- */
 function ExecuteButton({
   account,
   market,
@@ -71,16 +67,22 @@ function ExecuteButton({
   forwardResult: ForwardResult | null;
   onStepChange: (step: 0 | 1 | 2 | 3) => void;
 }) {
-  const { execute, loading, error, txSignature } = useExecuteOfc(account);
+  const { execute, loading, error, step, signatures } = useExecuteOfc(account);
+
+  if (step > 0) onStepChange(step);
+
+  const allDone = !!signatures.swap;
+
+  const stepLabels: Record<number, string> = {
+    1: "Step 1/3 — Buying navToken...",
+    2: "Step 2/3 — Borrowing...",
+    3: "Step 3/3 — Swapping to USDC...",
+  };
 
   async function handleExecute() {
     if (!forwardResult) return;
-    onStepChange(1);
     await execute(market, forwardResult.inputAmount, forwardResult.cashInBase);
   }
-
-  // Update parent step based on tx state
-  if (txSignature) onStepChange(3);
 
   return (
     <>
@@ -92,12 +94,12 @@ function ExecuteButton({
         {loading ? (
           <>
             <Loader2 size={14} className="animate-spin" />
-            Signing transaction...
+            {stepLabels[step] ?? "Processing..."}
           </>
-        ) : txSignature ? (
+        ) : allDone ? (
           <>
             <CheckCircle size={14} className="text-accent" />
-            Transaction sent
+            All steps complete
           </>
         ) : !forwardResult ? (
           "Enter an amount first"
@@ -105,14 +107,34 @@ function ExecuteButton({
           "Execute directly from wallet"
         )}
       </button>
-      {txSignature && (
+      {signatures.buy && (
         <a
-          href={`https://solscan.io/tx/${txSignature}`}
+          href={`https://solscan.io/tx/${signatures.buy}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-accent hover:text-accent-hover text-center transition-colors"
         >
-          View on Solscan →
+          Step 1 — Buy tx →
+        </a>
+      )}
+      {signatures.borrow && (
+        <a
+          href={`https://solscan.io/tx/${signatures.borrow}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-accent hover:text-accent-hover text-center transition-colors"
+        >
+          Step 2 — Borrow tx →
+        </a>
+      )}
+      {signatures.swap && (
+        <a
+          href={`https://solscan.io/tx/${signatures.swap}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-accent hover:text-accent-hover text-center transition-colors"
+        >
+          Step 3 — Swap tx →
         </a>
       )}
       {error && (

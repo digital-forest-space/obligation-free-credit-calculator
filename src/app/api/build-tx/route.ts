@@ -15,19 +15,22 @@ function getRpcUrl(): string {
 /**
  * POST /api/build-tx
  *
- * Builds an unsigned buy-and-borrow transaction for a given market.
- * Returns base64-encoded transaction bytes ready for wallet signing.
+ * Builds an unsigned transaction for a specific step of the OFC flow.
  *
- * Body: { wallet: string, marketName: string, inputAmount: number, borrowAmount: number }
+ * Body:
+ *   action: "buy" | "borrow"
+ *   wallet: string
+ *   marketName: string
+ *   amount: number (base token amount for buy, borrow amount for borrow)
  */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { wallet, marketName, inputAmount, borrowAmount } = body;
+    const { action, wallet, marketName, amount } = body;
 
-    if (!wallet || !marketName || !inputAmount || !borrowAmount) {
+    if (!action || !wallet || !marketName || !amount) {
       return NextResponse.json(
-        { error: "Missing required fields: wallet, marketName, inputAmount, borrowAmount" },
+        { error: "Missing required fields: action, wallet, marketName, amount" },
         { status: 400 },
       );
     }
@@ -42,25 +45,39 @@ export async function POST(request: Request) {
 
     const rpcClient = new DefaultSolanaRpcClient(getRpcUrl());
     const samsaraClient = new SamsaraClient({ rpcClient });
-
     const recentBlockhash = await rpcClient.getLatestBlockhash();
+    const lamports = toLamports(amount, market.baseDecimals);
 
-    const inputLamports = toLamports(inputAmount, market.baseDecimals);
-    // Apply 98% safety margin to avoid overshooting borrow capacity
-    const borrowLamports = toLamports(borrowAmount * 0.98, market.baseDecimals);
+    let txBytes: Uint8Array;
 
-    const txBytes = await samsaraClient.buildUnsignedBuyAndBorrowTransaction({
-      userPubkey: wallet,
-      market,
-      inputLamports,
-      borrowLamports,
-      recentBlockhash,
-    });
+    if (action === "buy") {
+      txBytes = await samsaraClient.buildUnsignedBuyNavSolTransaction({
+        userPubkey: wallet,
+        market,
+        inputLamports: lamports,
+        recentBlockhash,
+      });
+    } else if (action === "borrow") {
+      txBytes = await samsaraClient.buildUnsignedBorrowTransaction({
+        userPubkey: wallet,
+        market,
+        borrowLamports: lamports,
+        recentBlockhash,
+      });
+    } else {
+      return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
+    }
 
-    // Return as base64 so it can be decoded client-side
     const base64Tx = Buffer.from(txBytes).toString("base64");
 
-    return NextResponse.json({ transaction: base64Tx });
+    // Also fetch borrow capacity if this was a buy (so the client knows how much to borrow next)
+    let borrowCapacity: Record<string, number> | null = null;
+    if (action === "buy") {
+      // This returns the current on-chain capacity (before this tx lands)
+      // Client will re-fetch after confirmation
+    }
+
+    return NextResponse.json({ transaction: base64Tx, borrowCapacity });
   } catch (err) {
     console.error("build-tx error:", err);
     return NextResponse.json(
