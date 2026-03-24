@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ExternalLink, Loader2, CheckCircle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ExternalLink, Loader2, CheckCircle, RotateCcw } from "lucide-react";
 import { useSelectedWalletAccount } from "@solana/react";
 import type { UiWalletAccount } from "@wallet-standard/react";
 import type { MarketConfig } from "@/lib/samsara/config";
@@ -79,8 +79,9 @@ function ConnectedFlowPanel({
   manualStep: 0 | 1 | 2 | 3;
   onManualStepChange: (step: 0 | 1 | 2 | 3) => void;
 }) {
-  const { execute, loading, error, step, signatures } = useExecuteOfc(account);
+  const { execute, reset, loading, error, step, signatures } = useExecuteOfc(account);
 
+  const hasStarted = step > 0 || !!signatures.buy;
   const activeStep = step > 0 ? step : manualStep;
   const allDone = !!signatures.swap;
   const hasResult = !!forwardResult || !!reverseResult;
@@ -98,6 +99,17 @@ function ConnectedFlowPanel({
       ? reverseResult.desiredCashBase
       : 0;
 
+  // Auto-reset when user changes inputs (inputAmount or maxBorrow changes)
+  const prevInputRef = useRef({ inputAmount, maxBorrow });
+  useEffect(() => {
+    const prev = prevInputRef.current;
+    if (hasStarted && !loading && (prev.inputAmount !== inputAmount || prev.maxBorrow !== maxBorrow)) {
+      reset();
+      onManualStepChange(0);
+    }
+    prevInputRef.current = { inputAmount, maxBorrow };
+  }, [inputAmount, maxBorrow, hasStarted, loading, reset, onManualStepChange]);
+
   const stepLabels: Record<number, string> = {
     1: "Step 1/3 — Buying navToken...",
     2: "Step 2/3 — Borrowing...",
@@ -109,29 +121,45 @@ function ConnectedFlowPanel({
     await execute(market, inputAmount, maxBorrow);
   }
 
+  function handleReset() {
+    reset();
+    onManualStepChange(0);
+  }
+
   return (
     <>
-      <button
-        onClick={handleExecute}
-        disabled={loading || !hasResult}
-        className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <>
-            <Loader2 size={14} className="animate-spin" />
-            {stepLabels[step] ?? "Processing..."}
-          </>
-        ) : allDone ? (
-          <>
-            <CheckCircle size={14} className="text-accent" />
-            All steps complete
-          </>
-        ) : !hasResult ? (
-          "Enter an amount first"
-        ) : (
-          "Execute directly from wallet"
+      <div className="flex gap-2">
+        <button
+          onClick={handleExecute}
+          disabled={loading || !hasResult}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              {stepLabels[step] ?? "Processing..."}
+            </>
+          ) : allDone ? (
+            <>
+              <CheckCircle size={14} className="text-accent" />
+              All steps complete
+            </>
+          ) : !hasResult ? (
+            "Enter an amount first"
+          ) : (
+            "Execute directly from wallet"
+          )}
+        </button>
+        {hasStarted && !loading && (
+          <button
+            onClick={handleReset}
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-bg border border-border text-sm text-secondary hover:text-primary transition-colors cursor-pointer"
+            title="Reset"
+          >
+            <RotateCcw size={14} />
+          </button>
         )}
-      </button>
+      </div>
       {error && (
         <p className="text-xs text-error text-center">{error}</p>
       )}

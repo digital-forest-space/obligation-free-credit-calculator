@@ -9,6 +9,7 @@ type Step = 0 | 1 | 2 | 3;
 
 interface ExecuteOfcResult {
   execute: (market: MarketConfig, inputAmount: number, maxBorrow: number) => Promise<void>;
+  reset: () => void;
   loading: boolean;
   error: string | null;
   step: Step;
@@ -78,7 +79,14 @@ export function useExecuteOfc(account: UiWalletAccount): ExecuteOfcResult {
     [account, signAndSend],
   );
 
-  return { execute, loading, error, step, signatures };
+  const reset = useCallback(() => {
+    setLoading(false);
+    setError(null);
+    setStep(0);
+    setSignatures({});
+  }, []);
+
+  return { execute, reset, loading, error, step, signatures };
 }
 
 // ── Helpers ──
