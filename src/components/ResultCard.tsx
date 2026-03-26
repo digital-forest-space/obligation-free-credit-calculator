@@ -86,15 +86,11 @@ export function ResultCard({
           {forward && (
             <div className="flex flex-col gap-2 text-xs text-secondary">
               <Row
-                label="Buy fee (0.1%)"
-                value={`${fmt(forward.buyFee, 6)} ${market.name}`}
+                label={`Buy fee (${(forward.buyFee / forward.inputAmount * 100).toFixed(2)}%)`}
+                value={`${fmt(forward.buyFee, 6)} ${market.baseName}`}
               />
               <Row
-                label="Borrow limit (floor)"
-                value={`${fmt(forward.borrowLimit)} ${market.baseName}`}
-              />
-              <Row
-                label="Borrow fee (0.2%)"
+                label={`Borrow fee (${(forward.borrowFee / forward.borrowLimit * 100).toFixed(2)}%)`}
                 value={`${fmt(forward.borrowFee, 6)} ${market.baseName}`}
               />
             </div>

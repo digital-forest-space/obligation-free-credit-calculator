@@ -11,8 +11,6 @@ export interface MarketConfig {
   borrowFeeMicrobps: number;
 }
 
-export const BUY_FEE_RATE = 10_000 / 1_000_000_000; // 0.1%
-export const BORROW_FEE_RATE = 20_000 / 1_000_000_000; // 0.2%
 
 export const MARKETS: Record<string, MarketConfig> = {
   navSOL: {

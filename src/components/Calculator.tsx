@@ -94,14 +94,16 @@ export function Calculator({ onStateChange }: CalculatorProps) {
     const p = prices[market.name];
     if (!p) return;
 
+    const { buyFeeRate, borrowFeeRate } = p.fees;
+
     if (direction === "forward") {
       setForwardResult(
-        calculateForward(num, p.marketPrice, p.floorPrice, p.baseUsdPrice),
+        calculateForward(num, p.marketPrice, p.floorPrice, p.baseUsdPrice, buyFeeRate, borrowFeeRate),
       );
     } else {
       const desiredCashBase = num / p.baseUsdPrice;
       setReverseResult(
-        calculateReverse(desiredCashBase, p.marketPrice, p.floorPrice, p.baseUsdPrice),
+        calculateReverse(desiredCashBase, p.marketPrice, p.floorPrice, p.baseUsdPrice, buyFeeRate, borrowFeeRate),
       );
     }
   }, [amount, market, direction, prices]);
@@ -127,7 +129,7 @@ export function Calculator({ onStateChange }: CalculatorProps) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <AssetSelector selected={market} onChange={setMarket} />
         <WalletButton />
       </div>

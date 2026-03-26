@@ -1,10 +1,8 @@
-import { BUY_FEE_RATE, BORROW_FEE_RATE } from './config';
-
 export interface ForwardResult {
   inputAmount: number;
-  navTokens: number;
   buyFee: number;
-  navTokensAfterFee: number;
+  amountAfterFee: number;
+  navTokens: number;
   borrowLimit: number;
   borrowFee: number;
   cashInBase: number;
@@ -16,34 +14,37 @@ export interface ReverseResult {
   desiredCashUsd: number;
   borrowLimitNeeded: number;
   navTokensNeeded: number;
-  navTokensBeforeFee: number;
+  amountBeforeFee: number;
   assetNeeded: number;
 }
 
 /**
  * Forward calculation: given an asset amount, how much cash can be obtained?
  *
- * Flow: asset → buy navTokens → deposit → borrow against floor → sell borrowed tokens
+ * Flow: asset → deduct buy fee (in base) → buy navTokens → deposit → borrow against floor
  */
 export function calculateForward(
   inputAmount: number,
   marketPrice: number,
   floorPrice: number,
   baseUsdPrice: number,
+  buyFeeRate: number,
+  borrowFeeRate: number,
 ): ForwardResult {
-  const navTokens = inputAmount / marketPrice;
-  const buyFee = navTokens * BUY_FEE_RATE;
-  const navTokensAfterFee = navTokens - buyFee;
-  const borrowLimit = navTokensAfterFee * floorPrice;
-  const borrowFee = borrowLimit * BORROW_FEE_RATE;
+  // Buy fee is charged in base token
+  const buyFee = inputAmount * buyFeeRate;
+  const amountAfterFee = inputAmount - buyFee;
+  const navTokens = amountAfterFee / marketPrice;
+  const borrowLimit = navTokens * floorPrice;
+  const borrowFee = borrowLimit * borrowFeeRate;
   const cashInBase = borrowLimit - borrowFee;
   const cashUsd = cashInBase * baseUsdPrice;
 
   return {
     inputAmount,
-    navTokens,
     buyFee,
-    navTokensAfterFee,
+    amountAfterFee,
+    navTokens,
     borrowLimit,
     borrowFee,
     cashInBase,
@@ -61,18 +62,22 @@ export function calculateReverse(
   marketPrice: number,
   floorPrice: number,
   baseUsdPrice: number,
+  buyFeeRate: number,
+  borrowFeeRate: number,
 ): ReverseResult {
-  const borrowLimitNeeded = desiredCashBase / (1 - BORROW_FEE_RATE);
+  const borrowLimitNeeded = desiredCashBase / (1 - borrowFeeRate);
   const navTokensNeeded = borrowLimitNeeded / floorPrice;
-  const navTokensBeforeFee = navTokensNeeded / (1 - BUY_FEE_RATE);
-  const assetNeeded = navTokensBeforeFee * marketPrice;
+  // amountBeforeFee is the base token needed to buy navTokensNeeded
+  const amountBeforeFee = navTokensNeeded * marketPrice;
+  // Gross up for buy fee (charged in base token)
+  const assetNeeded = amountBeforeFee / (1 - buyFeeRate);
 
   return {
     desiredCashBase,
     desiredCashUsd: desiredCashBase * baseUsdPrice,
     borrowLimitNeeded,
     navTokensNeeded,
-    navTokensBeforeFee,
+    amountBeforeFee,
     assetNeeded,
   };
 }
